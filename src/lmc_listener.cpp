@@ -230,16 +230,24 @@ void LeapListener::onFrame(const Controller& controller)
             ros_hand_msg.header.stamp = timestamp;
             ros_hand_msg.header.frame_id = LeapListener::header_frame_id_;
             ros_hand_msg.lmc_hand_id = hand.id();
-            ros_hand_msg.is_present = true;                     // Override the default value
-            ros_hand_msg.valid_gestures = false;                // No gestures associated with this hand
-            ros_hand_msg.confidence = hand.confidence();        // How confident the controller is with a given hand pose between [0,1] inclusive. 
+            ros_hand_msg.is_present = true;                       // Override the default value
+            ros_hand_msg.valid_gestures = false;                  // No gestures associated with this hand
+            ros_hand_msg.confidence = hand.confidence();          // How confident the controller is with a given hand pose between [0,1] inclusive. 
             
-            // Get hand's roll-pitch-yam and convert them into quaternion.
-            // NOTE: Leap Motion roll-pith-yaw is from the perspective of human.
-            // Here it is mapped that roll is about x-, pitch about y-, and yaw about z-axis.
-            ros_hand_msg.roll = hand.direction().pitch();         // The roll angle in radians. 
-            ros_hand_msg.pitch = hand.direction().yaw();          // The pitch angle in radians.
-            ros_hand_msg.yaw = hand.palmNormal().roll();          // The yaw angle in radians.
+            // Get hand's roll-pitch-yaw as defined by leap
+            ros_hand_msg.roll = hand.palmNormal().roll();         // The roll angle in radians. 
+            ros_hand_msg.pitch = hand.direction().pitch();        // The pitch angle in radians.
+            ros_hand_msg.yaw = hand.direction().yaw();            // The yaw angle in radians.
+
+            // Get hand's direction vector
+            ros_hand_msg.direction.x = hand.direction().x;
+            ros_hand_msg.direction.y = hand.direction().y;
+            ros_hand_msg.direction.z = hand.direction().z;
+
+            // Get hand's normal vector            
+            ros_hand_msg.normal.x = hand.palmNormal().x;
+            ros_hand_msg.normal.y = hand.palmNormal().y;
+            ros_hand_msg.normal.z = hand.palmNormal().z;
 
             ros_hand_msg.grab_strength = hand.grabStrength();     // The angle between the fingers and the hand of a grab hand pose. 
             ros_hand_msg.palm_width = hand.palmWidth() / 1000.0;  // in m
@@ -336,7 +344,7 @@ void LeapListener::onFrame(const Controller& controller)
             
             ros_hand_msg.finger_list = finger_msg_list;
             
-            // Check if there are any gestures assosciated wih this frame
+            // Check if there are any gestures associated wih this frame
             // if there are, connect them with the correct hand
             if (!frame.gestures().isEmpty())
             {

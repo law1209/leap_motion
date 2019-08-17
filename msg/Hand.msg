@@ -21,6 +21,12 @@ float32 roll
 float32 pitch
 float32 yaw
 
+# The direction vector
+geometry_msgs/Vector3 direction
+
+# The normal vector
+geometry_msgs/Vector3 normal
+
 # The angle between the fingers and the hand of a grab hand pose. 
 # In radians
 float32 grab_strength
@@ -31,7 +37,7 @@ float32 pinch_strength
 # The rate of change of the palm position in meters/second. 
 float32[] palm_velocity
 
-# The center position of the palm in millimeters from the Leap Motion Controller origin. 
+# The center position of the palm in meters from the Leap Motion Controller origin. 
 geometry_msgs/Point palm_center
 
 # The estimated width of the palm when the hand is in a flat position. 
