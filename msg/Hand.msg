@@ -52,6 +52,9 @@ float32[] sphere_center
 # The position of the wrist of this hand. 
 float32[] wrist_position
 
+# The position of the elbow of this hand. 
+float32[] elbow_position
+
 # A string containing a brief, human readable description of the Hand object. 
 string to_string 
 

@@ -271,6 +271,11 @@ void LeapListener::onFrame(const Controller& controller)
             ros_hand_msg.wrist_position.push_back(hand.wristPosition()[0] / 1000.0);
             ros_hand_msg.wrist_position.push_back(hand.wristPosition()[1] / 1000.0);
             ros_hand_msg.wrist_position.push_back(hand.wristPosition()[2] / 1000.0);
+
+            // The position of the elbow of this hand in m.
+            ros_hand_msg.elbow_position.push_back(hand.arm().elbowPosition()[0] / 1000.0);
+            ros_hand_msg.elbow_position.push_back(hand.arm().elbowPosition()[1] / 1000.0);
+            ros_hand_msg.elbow_position.push_back(hand.arm().elbowPosition()[2] / 1000.0);
             
             if(LeapListener::enable_hand_info_)
             {
