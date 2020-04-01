@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include <tf/transform_datatypes.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 #include "leap_motion/Human.h"
 #include "leap_motion/Hand.h"
@@ -266,16 +268,6 @@ void LeapListener::onFrame(const Controller& controller)
             ros_hand_msg.sphere_center.push_back(hand.sphereCenter()[2] / 1000.0);
 
             ros_hand_msg.sphere_radius = hand.sphereRadius() / 1000.0;   // in m
-
-            // The position of the wrist of this hand in m.
-            ros_hand_msg.wrist_position.push_back(hand.wristPosition()[0] / 1000.0);
-            ros_hand_msg.wrist_position.push_back(hand.wristPosition()[1] / 1000.0);
-            ros_hand_msg.wrist_position.push_back(hand.wristPosition()[2] / 1000.0);
-
-            // The position of the elbow of this hand in m.
-            ros_hand_msg.elbow_position.push_back(hand.arm().elbowPosition()[0] / 1000.0);
-            ros_hand_msg.elbow_position.push_back(hand.arm().elbowPosition()[1] / 1000.0);
-            ros_hand_msg.elbow_position.push_back(hand.arm().elbowPosition()[2] / 1000.0);
             
             if(LeapListener::enable_hand_info_)
             {
@@ -287,6 +279,13 @@ void LeapListener::onFrame(const Controller& controller)
             ros_hand_msg.palm_center.x = hand.palmPosition().x / 1000.0;
             ros_hand_msg.palm_center.y = hand.palmPosition().y / 1000.0;
             ros_hand_msg.palm_center.z = hand.palmPosition().z / 1000.0;
+
+            // If this is a left hand, we need to convert rotation matrices to right-handed by negating the x basis
+            float x_basis_sign = 1.0;
+            if (!hand.isRight())
+            {
+                x_basis_sign = -1.0;
+            }
             
             // This is a list of finger messages that will be attached to the hand message
             std::vector<leap_motion::Finger> finger_msg_list; 
@@ -340,6 +339,16 @@ void LeapListener::onFrame(const Controller& controller)
                     ros_bone_msg.bone_end.position.y = bone.nextJoint().y / 1000.0;
                     ros_bone_msg.bone_end.position.z = bone.nextJoint().z / 1000.0;
 
+                    // Get bone rotation using basis vectors and store it in bone_start and bone_end Poses.
+                    Leap::Matrix leap_matrix = bone.basis();
+                    tf::Matrix3x3 tf_matrix(x_basis_sign * leap_matrix.xBasis.x, x_basis_sign * leap_matrix.xBasis.y,
+                                            x_basis_sign * leap_matrix.xBasis.z,
+                                            leap_matrix.yBasis.x, leap_matrix.yBasis.y, leap_matrix.yBasis.z,
+                                            leap_matrix.zBasis.x, leap_matrix.zBasis.y, leap_matrix.zBasis.z);
+                    tf::Quaternion tf_quaternion;
+                    tf_matrix.getRotation(tf_quaternion);
+                    quaternionTFToMsg(tf_quaternion, ros_bone_msg.bone_end.orientation);
+                    ros_bone_msg.bone_start.orientation = ros_bone_msg.bone_end.orientation;
                     bone_msg_list.push_back(ros_bone_msg);
                 }
                 
@@ -389,6 +398,36 @@ void LeapListener::onFrame(const Controller& controller)
                 }
                 ros_hand_msg.gesture_list = gesture_msg_list;
             }
+
+            // Populate arm details of hand
+            ros_hand_msg.arm.header.stamp = timestamp;
+
+            ros_hand_msg.arm.elbow.position.x = hand.arm().elbowPosition()[0] / 1000.0;
+            ros_hand_msg.arm.elbow.position.y = hand.arm().elbowPosition()[1] / 1000.0;
+            ros_hand_msg.arm.elbow.position.z = hand.arm().elbowPosition()[2] / 1000.0;
+
+            ros_hand_msg.arm.center.push_back(hand.arm().center()[0] / 1000.0);
+            ros_hand_msg.arm.center.push_back(hand.arm().center()[1] / 1000.0);
+            ros_hand_msg.arm.center.push_back(hand.arm().center()[2] / 1000.0);
+
+            ros_hand_msg.arm.wrist.position.x = hand.arm().wristPosition()[0] / 1000.0;
+            ros_hand_msg.arm.wrist.position.y = hand.arm().wristPosition()[1] / 1000.0;
+            ros_hand_msg.arm.wrist.position.z = hand.arm().wristPosition()[2] / 1000.0;
+
+            ros_hand_msg.arm.direction.x = hand.arm().center()[0] / 1000.0;
+            ros_hand_msg.arm.direction.y = hand.arm().center()[1] / 1000.0;
+            ros_hand_msg.arm.direction.z = hand.arm().center()[2] / 1000.0;
+
+            // Get arm rotation using basis vectors and store it in bone_start and bone_end Poses.
+            Leap::Matrix leap_matrix = hand.arm().basis();
+            tf::Matrix3x3 tf_matrix(x_basis_sign * leap_matrix.xBasis.x, x_basis_sign * leap_matrix.xBasis.y,
+                                    x_basis_sign * leap_matrix.xBasis.z,
+                                    leap_matrix.yBasis.x, leap_matrix.yBasis.y, leap_matrix.yBasis.z,
+                                    leap_matrix.zBasis.x, leap_matrix.zBasis.y, leap_matrix.zBasis.z);
+            tf::Quaternion tf_quaternion;
+            tf_matrix.getRotation(tf_quaternion);
+            quaternionTFToMsg(tf_quaternion, ros_hand_msg.arm.elbow.orientation);
+            ros_hand_msg.arm.wrist.orientation = ros_hand_msg.arm.elbow.orientation;
             
             if( hand.isRight() )
             {

@@ -49,15 +49,12 @@ float32 sphere_radius
 # The center of a sphere fit to the curvature of this hand. 
 float32[] sphere_center
 
-# The position of the wrist of this hand. 
-float32[] wrist_position
-
-# The position of the elbow of this hand. 
-float32[] elbow_position
-
 # A string containing a brief, human readable description of the Hand object. 
 string to_string 
 
-# A list of fingers and gestures assosciated with this hand
+# A list of fingers and gestures associated with this hand
 Finger[] finger_list
 Gesture[] gesture_list
+
+# The arm associated with this hand
+Arm arm
