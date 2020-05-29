@@ -34,6 +34,7 @@ find_package(OpenMP)
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
+  Arm.msg
   Bone.msg
   Finger.msg
   Gesture.msg
