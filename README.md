@@ -10,7 +10,7 @@ You should have [ROS Kinetic](http://wiki.ros.org/kinetic) or a [newer version](
 
 ## FEATURES
 
-Currently, this ROS package supports one person (left and right arm), publishing raw camera images from the controller, basic visualization using RViz and a pointcloud2 generated from [stereo_image_proc](http://wiki.ros.org/stereo_image_proc) node.
+Currently, this ROS package supports one person (left or right arm), publishing raw camera images from the controller, basic visualization using RViz and a pointcloud2 generated from [stereo_image_proc](http://wiki.ros.org/stereo_image_proc) node.
 
 There is also a filter node implementing a 2nd-order Butterworth lowpass filter that is used to filter the hand x, y, z coordinates coming from the Leap Controller via Human.msg. For more information refer to Julius O. Smith III, [Intro to Digital Filters with Audio Applications](https://ccrma.stanford.edu/~jos/filters/).
 
