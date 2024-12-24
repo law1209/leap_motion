@@ -168,7 +168,9 @@ target_link_libraries(leap_hands
   ${catkin_LIBRARIES} ${LIB_LEAP}
 )
 
-add_executable(leap_camera src/leap_camera.cpp)
+add_executable(leap_camera 
+src/leap_camera.cpp
+)
 target_link_libraries(leap_camera
   ${catkin_LIBRARIES} ${LIB_LEAP}
 )

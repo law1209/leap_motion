@@ -115,7 +115,6 @@ class LeapInterface(Leap.Listener):
                     self.right_hand=hand
                 elif hand.is_left:
                     there_is_left_hand=True
-
                     self.left_hand=hand
 
             if not there_is_right_hand:
